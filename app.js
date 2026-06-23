@@ -8,7 +8,7 @@ const DAILY_CARDIO_GOALS = {
 const DAILY_STRENGTH_GOALS = {
   heelRaise: 50,
   legRaise: 50,
-  bandExercise: 30,
+  squat: 30,
   sitUp: 30
 };
 
@@ -29,7 +29,7 @@ const inputSteps = document.getElementById('input-steps');
 const inputCycling = document.getElementById('input-cycling');
 const inputHeelRaise = document.getElementById('input-heel-raise');
 const inputLegRaise = document.getElementById('input-leg-raise');
-const inputBandExercise = document.getElementById('input-band-exercise');
+const inputSquat = document.getElementById('input-squat');
 const inputSitUp = document.getElementById('input-sit-up');
 
 // Stats and Overview
@@ -86,9 +86,9 @@ function saveDatabase() {
 function getWorkoutRecord(dateStr, timezone) {
   if (!workoutDatabase[dateStr]) {
     workoutDatabase[dateStr] = {
-      morning: { steps: 0, cycling: 0, heelRaise: 0, legRaise: 0, bandExercise: 0, sitUp: 0 },
-      afternoon: { steps: 0, cycling: 0, heelRaise: 0, legRaise: 0, bandExercise: 0, sitUp: 0 },
-      evening: { steps: 0, cycling: 0, heelRaise: 0, legRaise: 0, bandExercise: 0, sitUp: 0 }
+      morning: { steps: 0, cycling: 0, heelRaise: 0, legRaise: 0, squat: 0, sitUp: 0 },
+      afternoon: { steps: 0, cycling: 0, heelRaise: 0, legRaise: 0, squat: 0, sitUp: 0 },
+      evening: { steps: 0, cycling: 0, heelRaise: 0, legRaise: 0, squat: 0, sitUp: 0 }
     };
   }
   return workoutDatabase[dateStr][timezone];
@@ -101,7 +101,7 @@ function dateHasData(dateStr) {
   
   for (const tz of ['morning', 'afternoon', 'evening']) {
     const r = data[tz];
-    if (r.steps > 0 || r.cycling > 0 || r.heelRaise > 0 || r.legRaise > 0 || r.bandExercise > 0 || r.sitUp > 0) {
+    if (r.steps > 0 || r.cycling > 0 || r.heelRaise > 0 || r.legRaise > 0 || r.squat > 0 || r.sitUp > 0) {
       return true;
     }
   }
@@ -192,7 +192,7 @@ function loadActiveWorkoutData() {
   inputCycling.value = data.cycling || '';
   inputHeelRaise.value = data.heelRaise || '';
   inputLegRaise.value = data.legRaise || '';
-  inputBandExercise.value = data.bandExercise || '';
+  inputSquat.value = data.squat || '';
   inputSitUp.value = data.sitUp || '';
 }
 
@@ -215,18 +215,18 @@ function calculateDailyProgress(dateStr) {
   const strengthTotals = {
     heelRaise: (data.morning?.heelRaise || 0) + (data.afternoon?.heelRaise || 0) + (data.evening?.heelRaise || 0),
     legRaise: (data.morning?.legRaise || 0) + (data.afternoon?.legRaise || 0) + (data.evening?.legRaise || 0),
-    bandExercise: (data.morning?.bandExercise || 0) + (data.afternoon?.bandExercise || 0) + (data.evening?.bandExercise || 0),
+    squat: (data.morning?.squat || 0) + (data.afternoon?.squat || 0) + (data.evening?.squat || 0),
     sitUp: (data.morning?.sitUp || 0) + (data.afternoon?.sitUp || 0) + (data.evening?.sitUp || 0)
   };
 
   // Percent for each strength exercise
   const pHeel = Math.min(100, (strengthTotals.heelRaise / DAILY_STRENGTH_GOALS.heelRaise) * 100);
   const pLeg = Math.min(100, (strengthTotals.legRaise / DAILY_STRENGTH_GOALS.legRaise) * 100);
-  const pBand = Math.min(100, (strengthTotals.bandExercise / DAILY_STRENGTH_GOALS.bandExercise) * 100);
+  const pSquat = Math.min(100, (strengthTotals.squat / DAILY_STRENGTH_GOALS.squat) * 100);
   const pSit = Math.min(100, (strengthTotals.sitUp / DAILY_STRENGTH_GOALS.sitUp) * 100);
 
   // Strength completion is the average of completion across the 4 strength exercises
-  const strengthPct = Math.round((pHeel + pLeg + pBand + pSit) / 4);
+  const strengthPct = Math.round((pHeel + pLeg + pSquat + pSit) / 4);
 
   return { cardioPct, strengthPct, totalSteps, totalCycling, strengthTotals };
 }
@@ -409,7 +409,7 @@ function setupEventListeners() {
     inputCycling.value = '';
     inputHeelRaise.value = '';
     inputLegRaise.value = '';
-    inputBandExercise.value = '';
+    inputSquat.value = '';
     inputSitUp.value = '';
     
     // Save zero state
@@ -424,7 +424,7 @@ function setupEventListeners() {
   });
 
   // Auto-save on inputs
-  const inputs = [inputSteps, inputCycling, inputHeelRaise, inputLegRaise, inputBandExercise, inputSitUp];
+  const inputs = [inputSteps, inputCycling, inputHeelRaise, inputLegRaise, inputSquat, inputSitUp];
   inputs.forEach(input => {
     input.addEventListener('input', () => {
       saveActiveData(false); // Silent save (no toast)
@@ -440,7 +440,7 @@ function saveActiveData(silent = false) {
   data.cycling = Math.max(0, parseInt(inputCycling.value) || 0);
   data.heelRaise = Math.max(0, parseInt(inputHeelRaise.value) || 0);
   data.legRaise = Math.max(0, parseInt(inputLegRaise.value) || 0);
-  data.bandExercise = Math.max(0, parseInt(inputBandExercise.value) || 0);
+  data.squat = Math.max(0, parseInt(inputSquat.value) || 0);
   data.sitUp = Math.max(0, parseInt(inputSitUp.value) || 0);
 
   saveDatabase();
